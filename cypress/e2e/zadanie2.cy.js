@@ -14,6 +14,6 @@ describe('User can visit GoIT page', () => {
       cy.logInUser('testowyqa@qa.team', 'QA!automation-1').wait(5000);
       cy.get('[id="go-to-the-course-homepage-widget"]').scrollIntoView().should("be.visible");
       cy.get('button[class="next-7afvtf e1phyiqy6"]').click();
-      cy.contains('Log out').click();
+      cy.contains('Log out').click().wait(5000);
     })
   });
