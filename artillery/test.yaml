@@ -1,0 +1,22 @@
+config:
+  target: "https://wolnelektury.pl/api/"
+  phases:
+    - duration: 1
+      arrivalRate: 1
+
+scenarios:
+  - flow:
+      - get:
+          url: "https://wolnelektury.pl/api/audiobooks/"
+      - post:
+          url: "https://wolnelektury.pl/api/collections/"
+          json:
+            title: "Test Book"
+            author: "Test Author"
+            genre: "Test Genre"
+          expect:
+            - statusCode: 200
+            - latency:
+                max: 500
+            - http_req_duration:
+                p95: 500
