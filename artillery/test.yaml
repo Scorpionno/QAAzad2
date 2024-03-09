@@ -1,22 +1,40 @@
 config:
-  target: "https://wolnelektury.pl/api/"
+  target: "https://postman-echo.com"
   phases:
     - duration: 1
-      arrivalRate: 1
+      arrivalRate: 5
+
+  payload:
+    - path: "data.csv"
+      fields:
+        - "name"
+        - "password"
+      order: sequence
+  plugins:
+    ensure: {}
+  ensure:
+    thresholds:
+      - http.response_time.p95: 10000
+    conditions:
+      - expression: vusers.failed == 0
+      - expression: http.codes.200 > 0
+      - expression: "http.request_rate >= 2"
+      - expression: "http.response_time.max < 5000"
 
 scenarios:
-  - flow:
+  - name: Getting a resource
+    flow:
       - get:
-          url: "https://wolnelektury.pl/api/audiobooks/"
+          url: "{{ target }}/get?param1={{ name }}"
       - post:
-          url: "https://wolnelektury.pl/api/collections/"
+          url: "{{ target }}/post?param2={{ password }}"
           json:
-            title: "Test Book"
-            author: "Test Author"
-            genre: "Test Genre"
-          expect:
-            - statusCode: 200
-            - latency:
-                max: 500
-            - http_req_duration:
-                p95: 500
+            name: "{{ name }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.json"
+              as: "request_body"
+            - json: "$.headers.host"
+              as: "host"
+      - log: "Json value from response is: {{ request_body }}"
+      - log: "Host value from response is: {{ host }}"
